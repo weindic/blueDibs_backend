@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { ReferralController } from './referal.controller';
 import { ReferralService } from './referal.service';
 import { ReferralWalletService } from '../refralWallet/referral-wallet.service';
-import { PrismaService } from '../Prisma.Service';
+import { PrismaService } from 'src/Prisma.Service';
 import { AuthMiddleware } from 'src/auth/auth.middleware';
 import { ReferralWalletModule } from '../refralWallet/referral-wallet.module';
 import { UserModule } from '../user/user.module'; // Import UserModule and UserService from the correct path

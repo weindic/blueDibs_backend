@@ -1,6 +1,6 @@
 // vip-chat-box.service.ts
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../Prisma.service';
+import { PrismaService } from 'src/Prisma.Service';
 import { CreateVipChatBoxDto, UpdateSeenAllDto, DeleteMessageDto } from './vip-chat-box.dto';
 import { VIPChatGateway } from './vip-chat.gateway';
 

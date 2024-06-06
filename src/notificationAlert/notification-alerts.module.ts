@@ -3,7 +3,7 @@
 import { Module } from '@nestjs/common';
 import { NotificationAlertsService } from './notification-alerts.service';
 import { NotificationAlertsController } from './notification-alerts.controller';
-import { PrismaService } from '../Prisma.Service';
+import { PrismaService } from 'src/Prisma.Service';
 
 import { NotificationGateway } from './notification.gateway';
 

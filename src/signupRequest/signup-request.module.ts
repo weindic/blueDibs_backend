@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SignupRequestService } from './signup-request.service';
 import { SignupRequestController } from './signup-request.controller';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from 'src/Prisma.Service';
 import { EmailService } from 'src/email/email.service';
 import { EmailModule } from 'src/email/email.module';
 

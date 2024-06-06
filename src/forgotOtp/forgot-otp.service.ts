@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from 'src/Prisma.Service';
 import { SendOtpDto, VerifyOtpDto } from './send-otp.dto';
 
 import { addMinutes } from 'date-fns';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../Prisma.Service';
+import { PrismaService } from 'src/Prisma.Service';
 import { CreateReferralWalletDTO } from './referral-wallet.dto';
 
 @Injectable()

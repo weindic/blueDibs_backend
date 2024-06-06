@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from 'src/Prisma.Service';
 import { EnableVIPChatDto, DisableVIPChatDto, CheckUserVIPDto, GetVIPChatDataDto } from './vip-chat.dto';
 
 @Injectable()

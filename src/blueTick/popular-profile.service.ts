@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../Prisma.Service';
+import { PrismaService } from 'src/Prisma.Service';
 import { AssignBlueTickDTO } from './popular-profile.dto';
 
 @Injectable()

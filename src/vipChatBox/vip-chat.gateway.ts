@@ -2,7 +2,7 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../Prisma.service';
+import { PrismaService } from 'src/Prisma.Service';
 
 @Injectable()
 @WebSocketGateway()

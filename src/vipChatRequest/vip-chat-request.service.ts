@@ -1,7 +1,7 @@
 // src/vip-chat-request/vip-chat-request.service.ts
 
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../Prisma.Service';
+import { PrismaService } from 'src/Prisma.Service';
 import { CreateVipChatRequestDto, UpdateStatusDto, UpdateSeenStatusDto, GetByFromIdDto, GetByToIdDto } from './vip-chat-request.dto';
 import { NotificationAlertsService } from '../notificationAlert/notification-alerts.service'; // Import NotificationAlertsService
 

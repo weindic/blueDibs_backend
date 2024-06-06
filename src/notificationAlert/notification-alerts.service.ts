@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../Prisma.Service';
+import { PrismaService } from 'src/Prisma.Service';
 import { CreateNotificationAlertDto, UpdateStatusDto, UpdateSeenStatusDto, GetByUserIdDto, UpdateUserIdDto } from './notification-alerts.dto';
 import { NotificationGateway } from './notification.gateway';
 
