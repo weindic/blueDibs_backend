@@ -73,11 +73,11 @@ export class UserController {
   async updateProfileAndAvatar(
     @Req() req,
     @Body() body: UpdateUserDTO,
-    @UploadedFile() avatar: Express.Multer.File
+
   ) {
 
 
-    console.log('body', body, avatar)
+
 
     // Extract user data from request body
     const firebaseId = body.id;
