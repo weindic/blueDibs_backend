@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/Prisma.service';
+import { PrismaService } from 'src/Prisma.Service';
 import { CreateKycRequestDto } from './create-kyc-request.dto';
 import { UpdateKycStatusDto } from './update-kyc-status.dto';
 
