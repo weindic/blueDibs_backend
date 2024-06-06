@@ -1,0 +1,346 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+
+model VipChatRequest {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    fromId       String   
+    toId       String 
+    type        String
+    duration         String
+    seenStatus   String
+    status       Int
+    createdAt    DateTime @default(now())
+
+}
+
+
+model SignupRequest {
+
+ id            String   @id @default(auto()) @map("_id") @db.ObjectId
+ password      String
+ email         String   @unique
+ username      String
+ otp           Int        
+ status        Int     @default(1)
+ createdAt     DateTime @default(now())
+
+}
+
+
+model NotificationAlerts {
+    id            String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId        String 
+    fromId        String  
+    sourceId      String 
+    type          String
+    message      String
+    seenStatus    String
+    status        Int
+    createdAt     DateTime @default(now())
+
+}
+
+model VIPChatProfile {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId       String   @unique
+    audio        String 
+    video        String
+    text         String
+    status       Int
+    createdAt    DateTime @default(now())
+
+}
+
+
+model KycRequest {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @unique
+  adhaar       String
+  pan          String
+  adhaarNumber String
+  panNumber    String
+  status       Int      @default(1)
+  createdAt    DateTime @default(now())
+}
+
+
+model ForgotOTP {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  otp          String
+  expiry       DateTime
+  status       Int      @default(1)
+  createdAt    DateTime @default(now())
+}
+
+
+
+model VipChatRoom {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userOne        String 
+  userTwo        String
+  unread       Int     @default(1)
+  status       Int      @default(1)
+  createdAt    DateTime @default(now())
+
+}
+
+
+model VipChatBox {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomId        String  
+  message        String
+  userId         String
+  type           String
+  replyId        String
+  file           String
+  seenStatus     Int @default(1)
+  status         Int   @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+
+}
+
+
+
+model Referral {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  referralCode String   @unique
+  senderId     String
+  receiverId   String
+  status       Int
+  createdAt    DateTime @default(now())
+}
+
+
+model PopularProfile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique
+  status    Int
+  createdAt DateTime @default(now())
+}
+
+
+
+
+model ReferralWallet {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @unique
+  balance       Float
+  status        Int
+  createdAt     DateTime  @default(now())
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  firebaseId   String   @unique
+  avatarPath   String?
+  email        String   @unique
+  username     String   @unique
+  bio          String?
+  followers    User[]   @relation("UserFollows", fields: [followersIDs], references: [id])
+  followersIDs String[] @db.ObjectId
+  following    User[]   @relation("UserFollows", fields: [followingIDs], references: [id])
+  followingIDs String[] @db.ObjectId
+  Posts        Post[]   @relation("owner")
+
+  PostLikedIDs String[]  @db.ObjectId
+  PostsLiked   Post[]    @relation("postLiked", fields: [PostLikedIDs], references: [id])
+  Comment      Comment[]
+
+  pan String?
+
+  shares Float @default(10000000)
+
+  balance Float @default(0)
+
+  price Float @default(1)
+
+  userEquity     Float @default(10)
+  platformEquity Float @default(2.5)
+
+  // holdings
+  Holdings Holding[] @relation("bought")
+  Sold     Holding[] @relation("sold")
+
+  // transactions
+  SellTransactions Transaction[] @relation("sellTransactions")
+  BuyTRansactions  Transaction[] @relation("buyTransactions")
+
+  AddFundRequest AddFundRequest[]
+
+  mobile String?
+  gender Gender?
+  dob    DateTime?
+
+  lastSell lastSell
+
+  WithDrawalRequest WithDrawalRequest[]
+  PaymentMethod     PaymentMethod[]
+  PlatformSellRequests PlatformSellRequest[]
+
+  verified Boolean @default(false)
+
+  otpSentTime DateTime?
+  otp         Int?
+
+  activated Boolean @default(false)
+
+  @@unique([email, username])
+}
+
+type lastSell {
+  equity Float?
+  time   DateTime?
+}
+
+enum Status {
+  ACCEPTED
+  PENDING
+  REJECTED
+}
+
+model PlatformSellRequest {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  amount Float
+
+  status Status
+
+  failedReason String?
+
+  created DateTime @default(now())
+}
+
+model WithDrawalRequest {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  type   Int   @default(1)
+
+  amount Float
+
+  status Status
+
+  failedReason String?
+
+  created DateTime @default(now())
+}
+
+model AddFundRequest {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String? @db.ObjectId
+
+  txnId String
+
+  amount String
+
+  status Status
+
+  created DateTime @default(now())
+}
+
+
+model Holding {
+  ownership_id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  buyerUser User   @relation("bought", fields: [buyer_id], references: [id])
+  buyer_id  String @db.ObjectId
+
+  investedInr Float @default(-1)
+
+  amount Float // it's quantity actually
+    type  String?
+
+  sellerUser User   @relation("sold", fields: [seller_id], references: [id])
+  seller_id  String @db.ObjectId
+
+  created DateTime @default(now())
+
+  @@unique([buyer_id, seller_id])
+}
+
+// the transaction is of amount shares from seller to buyer
+model Transaction {
+  txn_id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  buyerUser User   @relation("sellTransactions", fields: [buyer_id], references: [id])
+  buyer_id  String @db.ObjectId
+
+  price Float @default(0)
+
+  amount Float
+
+  type  String?
+
+  newPrice Float @default(0)
+
+  sellerUser User   @relation("buyTransactions", fields: [seller_id], references: [id])
+  seller_id  String @db.ObjectId
+
+  created DateTime @default(now())
+}
+
+model Post {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  path     String
+  caption  String?
+  likes    Int     @default(0)
+  User     User    @relation("owner", fields: [userId], references: [id])
+  mimetype String?
+
+  UserLikedIDs String[] @db.ObjectId
+  UsersLiked   User[]   @relation("postLiked", fields: [UserLikedIDs], references: [id])
+
+  userId  String    @db.ObjectId
+  created DateTime
+  Comment Comment[]
+}
+
+model Comment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  Post   Post   @relation(fields: [postId], references: [id])
+  postId String @db.ObjectId
+
+  content String
+
+  created DateTime
+}
+
+model PaymentMethod {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  upiId String
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @unique @db.ObjectId
+}
