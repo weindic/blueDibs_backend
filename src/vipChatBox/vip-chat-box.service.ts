@@ -4,6 +4,7 @@ import { PrismaService } from 'src/Prisma.Service';
 import { CreateVipChatBoxDto, UpdateSeenAllDto, DeleteMessageDto } from './vip-chat-box.dto';
 import { VIPChatGateway } from './vip-chat.gateway';
 
+
 @Injectable()
 export class VipChatBoxService {
   constructor(
@@ -53,6 +54,44 @@ export class VipChatBoxService {
     this.sendRealTimeUpdate(roomId);
   }
 
+  async getRoomsDataByUserID(userId: string) {
+    // Fetch chat rooms where the user is either userOne or userTwo
+    const chatRooms = await this.prisma.vipChatRoom.findMany({
+      where: {
+        OR: [
+          { userOne: userId },
+          { userTwo: userId },
+        ],
+      },
+    });
+
+    // Fetch user data for each userOne and userTwo
+    const userDataPromises = chatRooms.map(async room => {
+      const userOneDataPromise = this.prisma.user.findUnique({
+        where: { id: room.userOne },
+        select: { id: true, avatarPath: true, username: true },
+      });
+      const userTwoDataPromise = this.prisma.user.findUnique({
+        where: { id: room.userTwo },
+        select: { id: true, avatarPath: true, username: true },
+      });
+      const [userOneData, userTwoData] = await Promise.all([userOneDataPromise, userTwoDataPromise]);
+      return {
+        id: room.id,
+        userOne: userOneData,
+        userTwo: userTwoData,
+        unread: room.unread,
+        status: room.status,
+        createdAt: room.createdAt,
+      };
+    });
+
+    // Wait for all user data promises to resolve
+    const roomsWithUserData = await Promise.all(userDataPromises);
+
+    return roomsWithUserData;
+  }
+
   async getAllMessages(roomId: string) {
     return this.prisma.vipChatBox.findMany({
       where: { roomId, status: 1 },
@@ -76,4 +115,38 @@ export class VipChatBoxService {
   private sendRealTimeUpdate(roomId: string) {
     this.vipChatGateway.sendUpdateToClient(roomId);
   }
+
+
+
+  async updateTimer(roomId: string, timerValue: string) {
+    try {
+      const updatedRoom = await this.prisma.vipChatRoom.update({
+        where: { id: roomId },
+        data: { timer: timerValue },
+      });
+
+      // Notify clients about the timer update
+      this.sendRealTimeUpdate(roomId);
+      return updatedRoom;
+    } catch (error) {
+      console.error('Error updating timer:', error);
+      throw error;
+    }
+  }
+
+  async getVipChatRoomByRoomId(roomId: string) {
+    try {
+      const room = await this.prisma.vipChatRoom.findUnique({
+        where: { id: roomId },
+      });
+      return room;
+    } catch (error) {
+      console.error('Error fetching room:', error);
+      throw error;
+    }
+  }
+
+
+
+  
 }

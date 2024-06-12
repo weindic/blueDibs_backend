@@ -20,10 +20,21 @@ export class VIPChatGateway implements OnGatewayConnection, OnGatewayDisconnect 
   }
 
   @SubscribeMessage('register')
-  handleRegister(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
-    const { roomId } = data;
-    client.join(roomId);
-    console.log(`Client ${client.id} registered to roomId: ${roomId}`);
+  async handleRegister(@MessageBody() data: { userId: string }, @ConnectedSocket() client: Socket) {
+    const { userId } = data;
+    const chatRooms = await this.prisma.vipChatRoom.findMany({
+      where: {
+        OR: [
+          { userOne: userId },
+          { userTwo: userId },
+        ],
+      },
+    });
+
+    chatRooms.forEach(room => {
+      client.join(room.id);
+      console.log(`Client ${client.id} registered to roomId: ${room.id}`);
+    });
   }
 
   sendMessageToClient(roomId: string, message: any) {
@@ -35,4 +46,8 @@ export class VIPChatGateway implements OnGatewayConnection, OnGatewayDisconnect 
     console.log(`Sending update to room ${roomId}`);
     this.server.to(roomId).emit('update');
   }
+
+
+
+  
 }

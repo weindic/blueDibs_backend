@@ -14,6 +14,11 @@ export class CreateVipChatRequestDto {
     status: number;
     
   }
+
+  export class GetVipChatRequestDto {
+    fromId: string;
+    toId: string;
+  }
   
   export class UpdateSeenStatusDto {
     id: string;

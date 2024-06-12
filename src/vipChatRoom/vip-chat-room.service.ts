@@ -9,28 +9,42 @@ export class VipChatRoomService {
 
   async createRoom(createVipChatRoomDto: CreateVipChatRoomDto) {
     const { userOne, userTwo } = createVipChatRoomDto;
+    
+    // Check if a room with these users already exists
     let chatRoom = await this.prisma.vipChatRoom.findFirst({
-      where: {
-        OR: [
-          { userOne, userTwo },
-          { userOne: userTwo, userTwo: userOne },
-        ],
-      },
+        where: {
+            OR: [
+                { userOne, userTwo },
+                { userOne: userTwo, userTwo: userOne },
+            ],
+        },
     });
 
     if (chatRoom) {
-      return chatRoom;
+        // If the room exists, update it
+        chatRoom = await this.prisma.vipChatRoom.update({
+            where: { id: chatRoom.id },
+            data: {
+                status: 1,
+                unread: 1,
+                // Optionally, you can include other fields that need to be updated
+            },
+        });
+    } else {
+        // If the room does not exist, create a new one
+        chatRoom = await this.prisma.vipChatRoom.create({
+            data: {
+                userOne,
+                userTwo,
+                status: 1,
+                unread: 1,
+             
+            },
+        });
     }
 
-    chatRoom = await this.prisma.vipChatRoom.create({
-      data: {
-        userOne,
-        userTwo,
-      },
-    });
-
     return chatRoom;
-  }
+}
 
   async getChatRoomsByUserOne(userOne: string) {
     return this.prisma.vipChatRoom.findMany({
@@ -128,6 +142,41 @@ export class VipChatRoomService {
   }
 
 
-  
+  async endTheChat(payload: { fromId: string, toId: string, amount: number, duration: number, roomId: string }) {
+    const { fromId, toId, amount, roomId } = payload;
+
+    // Deduct amount from fromId user's balance
+    const fromUser = await this.prisma.user.update({
+      where: { id: fromId },
+      data: {
+        balance: {
+          decrement: amount,
+        },
+      },
+    });
+
+    // Add amount to toId user's balance
+    const toUser = await this.prisma.user.update({
+      where: { id: toId },
+      data: {
+        balance: {
+          increment: amount,
+        },
+      },
+    });
+
+    // Update chat room status to 0
+    const updatedChatRoom = await this.prisma.vipChatRoom.update({
+      where: { id: roomId },
+      data: { status: 0, unread:0 },
+    });
+
+    return {
+      fromUser,
+      toUser,
+      updatedChatRoom,
+    };
+  }
+
 
 }

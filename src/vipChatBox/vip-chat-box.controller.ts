@@ -21,8 +21,13 @@ export class VipChatBoxController {
     return this.vipChatBoxService.updateSeenAll(updateSeenAllDto);
   }
 
+  @Get('chat-rooms/:userId')
+  async getChatRoomsByUserId(@Param('userId') userId: string) {
+    return this.vipChatBoxService.getRoomsDataByUserID(userId);
+  }
+
   @Get('getAllMessages/:roomId')
-  getAllMessages(@Param('roomId') roomId: string) {
+  async getAllMessages(@Param('roomId') roomId: string) {
     return this.vipChatBoxService.getAllMessages(roomId);
   }
 
@@ -30,6 +35,19 @@ export class VipChatBoxController {
   clearChat(@Param('roomId') roomId: string) {
     return this.vipChatBoxService.clearChat(roomId);
   }
+
+
+  
+  @Post('update-timer/:roomId')
+  async updateTimer(@Param('roomId') roomId: string, @Body('timerValue') timerValue: string) {
+    return this.vipChatBoxService.updateTimer(roomId, timerValue);
+  }
+
+  @Get('room/:roomId')
+  async getVipChatRoomByRoomId(@Param('roomId') roomId: string) {
+    return this.vipChatBoxService.getVipChatRoomByRoomId(roomId);
+  }
+
 
   // @Get('getLastMessageBy/:roomId')
   // getLastMessageByRoomId(@Param('roomId') roomId: string) {

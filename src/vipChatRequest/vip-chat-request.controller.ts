@@ -2,7 +2,7 @@
 
 import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { VipChatRequestService } from './vip-chat-request.service';
-import { CreateVipChatRequestDto, UpdateStatusDto, UpdateSeenStatusDto, GetByFromIdDto, GetByToIdDto } from './vip-chat-request.dto';
+import { CreateVipChatRequestDto, UpdateStatusDto, UpdateSeenStatusDto, GetByFromIdDto, GetByToIdDto, GetByIdDto, GetVipChatRequestDto } from './vip-chat-request.dto';
 
 @Controller('vip-chat-request')
 export class VipChatRequestController {
@@ -31,5 +31,16 @@ export class VipChatRequestController {
   @Put('update-seen-status')
   async updateSeenStatus(@Body() updateSeenStatusDto: UpdateSeenStatusDto) {
     return this.vipChatRequestService.updateSeenStatus(updateSeenStatusDto);
+  }
+
+
+  @Get(':id')
+  async getDataById(@Param() params: GetByIdDto) {
+    return this.vipChatRequestService.getDataById(params);
+  }
+
+  @Post('get-latest')
+  async getLatestVipChatRequest(@Body() getVipChatRequestDto: GetVipChatRequestDto) {
+    return await this.vipChatRequestService.getLatestVipChatRequest(getVipChatRequestDto);
   }
 }

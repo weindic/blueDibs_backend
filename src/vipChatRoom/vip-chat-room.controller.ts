@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Patch, NotFoundException } from '@nestjs/common';
 import { VipChatRoomService } from './vip-chat-room.service';
-import { CreateVipChatRoomDto, UpdateUnreadStatusDto } from './create-vip-chat-room.dto';
+import { CreateVipChatRoomDto, EndChatDto, UpdateUnreadStatusDto } from './create-vip-chat-room.dto';
 
 
 @Controller('vip-chat-room')
@@ -43,5 +43,11 @@ export class VipChatRoomController {
     } catch (error) {
       throw new NotFoundException('Chat room not found');
     }
+  }
+
+
+  @Post('end-chat')
+  async endTheChat(@Body() endChatDto: EndChatDto) {
+    return this.vipChatRoomService.endTheChat(endChatDto);
   }
 }

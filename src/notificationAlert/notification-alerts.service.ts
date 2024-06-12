@@ -10,17 +10,44 @@ export class NotificationAlertsService {
     private readonly notificationGateway: NotificationGateway,
   ) {}
 
-  async  createNotificationAlert(data: CreateNotificationAlertDto) {
+  async createNotificationAlert(data: CreateNotificationAlertDto) {
     try {
-        // Create the notification alert using the provided data
-        const notification = await this.prisma.notificationAlerts.create({
-            data,
+        // Check if a notification with the same userId, fromId, sourceId, type, and message already exists
+        const existingNotification = await this.prisma.notificationAlerts.findFirst({
+            where: {
+                userId: data.userId,
+                fromId: data.fromId,
+                sourceId: data.sourceId,
+                type: data.type,
+                message: data.message,
+            },
+            orderBy: {
+                createdAt: 'desc', // Assuming there's a createdAt field to get the last record
+            },
         });
+
+        let notification;
+
+        if (existingNotification) {
+            // Update the last existing notification, including updating the createdAt field to the current date and time
+            notification = await this.prisma.notificationAlerts.update({
+                where: { id: existingNotification.id },
+                data: {
+                    ...data,
+                    createdAt: new Date(), // Update createdAt to the current date and time
+                },
+            });
+        } else {
+            // Create a new notification alert using the provided data
+            notification = await this.prisma.notificationAlerts.create({
+                data,
+            });
+        }
 
         // Check if the userId is provided in the data
         if (data.userId) {
             // Try to find a user with the matching firebaseId
-            const user = await  this.prisma.user.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     firebaseId: data.userId,
                 },
@@ -28,7 +55,7 @@ export class NotificationAlertsService {
 
             // If a matching user is found, update the notification with the user's _id
             if (user) {
-                await  this.prisma.notificationAlerts.update({
+                await this.prisma.notificationAlerts.update({
                     where: { id: notification.id },
                     data: {
                         userId: user.id, // Assuming _id is the field name in the User collection
@@ -39,19 +66,20 @@ export class NotificationAlertsService {
                 console.log(`No user found with firebaseId ${data.userId}`);
             }
         }
-        
+
         // Send real-time notification to client
         const notificationWithUser = await this.getNotificationWithUserDetails(notification);
         this.sendRealTimeNotification(data.userId, notificationWithUser);
 
-        return notification; // Return the created notification alert
+        return notification; // Return the created or updated notification alert
     } catch (error) {
         // Handle any errors that occur during the process
         console.error('Error creating notification alert:', error);
         throw error;
     }
+}
 
-  }
+
 
   async getNotificationsByUserId({ userId }: GetByUserIdDto) {
     const notifications = await this.prisma.notificationAlerts.findMany({

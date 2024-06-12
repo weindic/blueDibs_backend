@@ -41,6 +41,8 @@ import * as dayjs from 'dayjs';
 import * as duration from 'dayjs/plugin/duration';
 import { ObjectId } from 'bson';
 import { Request } from 'express';
+// import { ObjectId } from 'mongodb'; // Add this import
+
 dayjs.extend(duration);
 
 @Controller('user')
@@ -378,9 +380,16 @@ export class UserController {
 
   @Post('profiles')
   async getMultipleUserProfile(@Body() profiles: MultipleProfilesDTO) {
+    // Filter out invalid ObjectIDs
+    const validProfiles = profiles.filter(id => ObjectId.isValid(id));
+  
+    if (validProfiles.length === 0) {
+      throw new Error('No valid ObjectIDs provided.');
+    }
+  
     const data = await this.pService.user.findMany({
       where: {
-        id: { in: profiles },
+        id: { in: validProfiles },
       },
       select: {
         id: true,
@@ -388,10 +397,9 @@ export class UserController {
         avatarPath: true,
       },
     });
-
+  
     return data;
   }
-
  
   @Get()
   async getUserId(@Req() req) {

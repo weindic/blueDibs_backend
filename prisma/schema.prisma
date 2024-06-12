@@ -97,8 +97,9 @@ model VipChatRoom {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   userOne        String 
   userTwo        String
-  unread       Int     @default(1)
+  unread       Int      @default(1)
   status       Int      @default(1)
+  timer        String   @default("00:00")
   createdAt    DateTime @default(now())
 
 }

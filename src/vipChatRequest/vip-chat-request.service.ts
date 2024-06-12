@@ -2,7 +2,7 @@
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma.Service';
-import { CreateVipChatRequestDto, UpdateStatusDto, UpdateSeenStatusDto, GetByFromIdDto, GetByToIdDto } from './vip-chat-request.dto';
+import { CreateVipChatRequestDto, UpdateStatusDto, UpdateSeenStatusDto, GetByFromIdDto, GetByToIdDto, GetByIdDto, GetVipChatRequestDto } from './vip-chat-request.dto';
 import { NotificationAlertsService } from '../notificationAlert/notification-alerts.service'; // Import NotificationAlertsService
 
 @Injectable()
@@ -13,23 +13,47 @@ export class VipChatRequestService {
   ) {}
 
   async sendNewRequest(data: CreateVipChatRequestDto) {
-    const request = await this.prisma.vipChatRequest.create({
-      data,
+    // Check if a record with the same fromId and toId already exists
+    const existingRequest = await this.prisma.vipChatRequest.findFirst({
+        where: {
+            fromId: data.fromId,
+            toId: data.toId,
+        },
+        orderBy: {
+            createdAt: 'desc', // Assuming there's a createdAt field to get the most recent record
+        },
     });
+
+    let request;
+
+    if (existingRequest) {
+        // Update the status of the existing request
+        request = await this.prisma.vipChatRequest.update({
+            where: { id: existingRequest.id },
+            data,
+        });
+    } else {
+        // Create a new vipChatRequest
+        request = await this.prisma.vipChatRequest.create({
+            data,
+        });
+    }
 
     // Create a notification
     await this.notificationService.createNotificationAlert({
-      userId: data.toId, // toId from VipChatRequest will be userId in NotificationAlerts
-      sourceId: request.id, // ID of the VipChatRequest
-      fromId:data.fromId, 
-      type: 'vipchat',
-      message: 'Requested to join your VIP chat.',
-      seenStatus: '0',
-      status: 1,
+        userId: data.toId, // toId from VipChatRequest will be userId in NotificationAlerts
+        sourceId: request.id, // ID of the VipChatRequest
+        fromId: data.fromId,
+        type: 'vipchat',
+        message: 'Requested to join your VIP chat.',
+        seenStatus: '0',
+        status: 1,
     });
 
     return request;
-  }
+}
+
+  
 
   async getDataByFromId({ fromId }: GetByFromIdDto) {
     return this.prisma.vipChatRequest.findMany({
@@ -101,6 +125,7 @@ export class VipChatRequestService {
 
 
 
+
   async updateSeenStatus({ id, seenStatus }: UpdateSeenStatusDto) {
     const request = await this.prisma.vipChatRequest.findUnique({
       where: { id },
@@ -115,4 +140,37 @@ export class VipChatRequestService {
       data: { seenStatus },
     });
   }
+
+
+
+  async getDataById({ id }: GetByIdDto) {
+    const request = await this.prisma.vipChatRequest.findUnique({
+      where: { id },
+    });
+
+    if (!request) {
+      throw new NotFoundException('Request not found');
+    }
+
+    return request;
+  }
+
+
+
+
+  async getLatestVipChatRequest(data: GetVipChatRequestDto) {
+    const latestRequest = await this.prisma.vipChatRequest.findFirst({
+      where: {
+        fromId: data.fromId,
+        toId: data.toId,
+        status: 2,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return latestRequest;
+  }
+
 }

@@ -49,6 +49,8 @@ export class VIPChatService {
     return { isVIP: existingProfile && existingProfile.status === 1 };
   }
 
+
+  
   async getVIPChatData(data: GetVIPChatDataDto) {
     const { userId } = data;
     const existingProfile = await this.prisma.vIPChatProfile.findUnique({
