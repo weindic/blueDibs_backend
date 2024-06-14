@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './Prisma.Service';
@@ -26,7 +26,10 @@ import { VipChatRoomModule } from './vipChatRoom/vip-chat-room.module';
 import { VipChatBoxModule } from './vipChatBox/vip-chat-box.module';
 
 @Module({
+
+
   imports: [
+ 
     PassportModule,
     UserModule,
     PostModule,
@@ -58,4 +61,19 @@ import { VipChatBoxModule } from './vipChatBox/vip-chat-box.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModuleexport {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply((req, res, next) => {
+        // CORS headers
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        if (req.method === 'OPTIONS') {
+          res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+          return res.status(200).json({});
+        }
+        next();
+      })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
