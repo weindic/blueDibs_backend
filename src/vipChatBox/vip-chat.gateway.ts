@@ -5,7 +5,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma.Service';
 
 @Injectable()
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*', // Adjust this to match the origin of your Ionic app
+    methods: ['GET', 'POST', 'PUT']
+  }
+})
+
+
 export class VIPChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
