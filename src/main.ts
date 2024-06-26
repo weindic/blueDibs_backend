@@ -22,12 +22,12 @@ async function bootstrap() {
 
 
   app.use(function (request: Request, response: Response, next: NextFunction) {
-    response.setHeader('Access-Control-Allow-Origin',   'https://localhost:8100');
+    response.setHeader('Access-Control-Allow-Origin',   'https://localhost');
     next();
   });
 
   app.enableCors({
-    origin: ['http://localhost:8100', 'https://localhost:8100'], // Adjust this to match the origin of your Ionic app
+    origin: ['http://localhost:8100', 'https://localhost'], // Adjust this to match the origin of your Ionic app
     methods: 'GET,POST,PUT,DELETE,OPTIONS',
     credentials: true
   });
