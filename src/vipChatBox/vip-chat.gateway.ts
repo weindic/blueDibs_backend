@@ -7,7 +7,7 @@ import { PrismaService } from 'src/Prisma.Service';
 @Injectable()
 @WebSocketGateway({
   cors: {
-    origin: '*', // Adjust this to match the origin of your Ionic app
+    origin: 'http://localhost:8100', // Adjust this to match the origin of your Ionic app
     methods: ['GET', 'POST', 'PUT']
   }
 })
