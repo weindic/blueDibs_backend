@@ -38,10 +38,10 @@ export class VipChatBoxController {
 
 
   
-  @Post('update-timer/:roomId')
-  async updateTimer(@Param('roomId') roomId: string, @Body('timerValue') timerValue: string) {
-    return this.vipChatBoxService.updateTimer(roomId, timerValue);
-  }
+  // @Post('update-timer/:roomId')
+  // async updateTimer(@Param('roomId') roomId: string, @Body('timerValue') timerValue: string) {
+  //   return this.vipChatBoxService.updateTimer(roomId, timerValue);
+  // }
 
   @Get('room/:roomId')
   async getVipChatRoomByRoomId(@Param('roomId') roomId: string) {

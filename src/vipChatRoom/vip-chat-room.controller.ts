@@ -1,11 +1,17 @@
 import { Controller, Post, Body, Get, Param, Patch, NotFoundException } from '@nestjs/common';
 import { VipChatRoomService } from './vip-chat-room.service';
-import { CreateVipChatRoomDto, EndChatDto, UpdateUnreadStatusDto } from './create-vip-chat-room.dto';
+import { CreateVipChatRoomDto, EndChatDto, StartChatRoomDto, UpdateUnreadStatusDto } from './create-vip-chat-room.dto';
 
 
 @Controller('vip-chat-room')
 export class VipChatRoomController {
   constructor(private readonly vipChatRoomService: VipChatRoomService) {}
+
+  @Post('startChatRoom')
+  startChatRoom(@Body() StartChatRoomDto: StartChatRoomDto) {
+    return this.vipChatRoomService.startChatRoom(StartChatRoomDto);
+  }
+
 
   @Post('createRoom')
   createRoom(@Body() createVipChatRoomDto: CreateVipChatRoomDto) {
@@ -22,12 +28,13 @@ export class VipChatRoomController {
     return this.vipChatRoomService.getChatRoomsByUserTwo(userTwo);
   }
 
-  @Patch('updateUnreadStatus')
+  @Post('updateUnreadStatus')
   updateUnreadStatus(@Body() updateUnreadStatusDto: UpdateUnreadStatusDto) {
     return this.vipChatRoomService.updateUnreadStatus(updateUnreadStatusDto);
   }
 
 
+ 
   // Define the endpoint for getting rooms data by userID
   @Get('getRoomsDataBy/userID/:userID')
   getRoomsDataByUserID(@Param('userID') userID: string) {

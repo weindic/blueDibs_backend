@@ -1,6 +1,7 @@
 export class CreateVipChatRoomDto {
     userOne: string;
     userTwo: string;
+    
   }
 
   export class UpdateUnreadStatusDto {
@@ -22,3 +23,11 @@ export class CreateVipChatRoomDto {
    
     roomId: string;
   }
+
+
+  // create-vip-chat-room.dto.ts
+
+export class StartChatRoomDto {
+  roomId: string;
+  minutes: number;
+}

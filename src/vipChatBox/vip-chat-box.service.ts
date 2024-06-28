@@ -118,21 +118,21 @@ export class VipChatBoxService {
 
 
 
-  async updateTimer(roomId: string, timerValue: string) {
-    try {
-      const updatedRoom = await this.prisma.vipChatRoom.update({
-        where: { id: roomId },
-        data: { timer: timerValue },
-      });
+  // async updateTimer(roomId: string, timerValue: string) {
+  //   try {
+  //     const updatedRoom = await this.prisma.vipChatRoom.update({
+  //       where: { id: roomId },
+  //       data: { timer: timerValue },
+  //     });
 
-      // Notify clients about the timer update
-      this.sendRealTimeUpdate(roomId);
-      return updatedRoom;
-    } catch (error) {
-      console.error('Error updating timer:', error);
-      throw error;
-    }
-  }
+  //     // Notify clients about the timer update
+  //     this.sendRealTimeUpdate(roomId);
+  //     return updatedRoom;
+  //   } catch (error) {
+  //     console.error('Error updating timer:', error);
+  //     throw error;
+  //   }
+  // }
 
   async getVipChatRoomByRoomId(roomId: string) {
     try {

@@ -161,16 +161,19 @@ export class VipChatRequestService {
   async getLatestVipChatRequest(data: GetVipChatRequestDto) {
     const latestRequest = await this.prisma.vipChatRequest.findFirst({
       where: {
-        fromId: data.fromId,
-        toId: data.toId,
+        fromId: data.toId, // Swap fromId and toId
+        toId: data.fromId, // Swap fromId and toId
         status: 2,
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
-
+  
+    console.log('ddddad', latestRequest, data);
+  
     return latestRequest;
   }
+  
 
 }

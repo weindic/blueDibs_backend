@@ -130,7 +130,7 @@ export class SignupRequestService {
 
   async addUser(body: any) {
     try {
-      console.log('body', body);
+    
 
       // Check if the email already exists in the User collection
       const existingUser = await this.prisma.user.findUnique({
@@ -138,6 +138,9 @@ export class SignupRequestService {
           email: body.email,
         },
       });
+
+
+      console.log('body', existingUser, body);
 
       if (existingUser) {
         // If the email exists and the user is verified, throw a conflict exception
@@ -192,10 +195,10 @@ export class SignupRequestService {
         return { message: 'User created successfully', user };
       }
     } catch (err) {
-      console.error('Error occurred:', err); // Log detailed error
+      console.error('Error occurred:', err.status); // Log detailed error
 
-      if (err.code === 'P2002') {
-        throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      if (err.status=== 409 ) {
+        return { message: 'User already exist.', status:false };
       } else {
         throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
       }

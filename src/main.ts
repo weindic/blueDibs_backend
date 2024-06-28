@@ -22,7 +22,7 @@ async function bootstrap() {
 
 
   app.use(function (request: Request, response: Response, next: NextFunction) {
-    response.setHeader('Access-Control-Allow-Origin',   'https://localhost');
+    response.setHeader('Access-Control-Allow-Origin',  [ 'https://localhost', 'http://localhost:8100' ]);
     next();
   });
 

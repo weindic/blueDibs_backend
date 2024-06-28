@@ -291,12 +291,12 @@ export class UserController {
   async getUserFeeds(@Req() req) {
     const page = parseInt(req.query.page) ?? 0;
     const perPage = 10;
-
+  
+    // Fetch the current user and the IDs of users they are following
     const user = await this.pService.user.findFirst({
       where: {
         id: req.user.id,
       },
-
       select: {
         following: {
           select: {
@@ -305,23 +305,21 @@ export class UserController {
         },
       },
     });
-
+  
     const followingUserIds = (user?.following ?? []).map((fUser) => fUser.id);
-
+  
+    // Fetch the posts from the users the current user is following
     const posts = await this.pService.post.findMany({
       where: {
         userId: {
           in: followingUserIds,
         },
       },
-
       orderBy: {
         created: 'desc',
       },
-
       take: perPage,
       skip: page * perPage,
-
       include: {
         User: {
           select: {
@@ -333,7 +331,25 @@ export class UserController {
         },
       },
     });
-
+  
+    // Fetch all popular profiles
+    const popularProfiles = await this.pService.popularProfile.findMany({
+      where: {
+        status: 1,
+      },
+      select: {
+        userId: true,
+      },
+    });
+  
+    const popularProfileUserIds = new Set(popularProfiles.map(profile => profile.userId));
+  
+    // Add the popular flag to each post
+    const postsWithPopularity = posts.map(post => ({
+      ...post,
+      popular: popularProfileUserIds.has(post.userId),
+    }));
+  
     return {
       page,
       perPage,
@@ -342,9 +358,10 @@ export class UserController {
           userId: { in: followingUserIds },
         },
       }),
-      posts,
+      posts: postsWithPopularity,
     };
   }
+  
 
   @Post('follow/:id')
   async followUser(@Param('id') id, @Req() req) {
@@ -603,42 +620,84 @@ export class UserController {
 
   @Get('suggestions/users')
   async getSuggetedUsers(@Req() req) {
-    return this.pService.user
-      .findMany({
-        where: {
-          activated: true,
-          NOT: {
-            followers: {
-              some: { id: req.user.id },
-            },
+    // Fetch suggested users
+    const users = await this.pService.user.findMany({
+      where: {
+        activated: true,
+        NOT: {
+          followers: {
+            some: { id: req.user.id },
           },
         },
-
-        take: 10,
-        orderBy: { Posts: { _count: 'desc' } },
-      })
-      .then((users) =>
-        users.filter(
-          (user) =>
-            ![
-              '657b12dfe1040ebf6d05e6d7',
-              req.user.id,
-              '657b14c8e1040ebf6d05e6d9',
-            ].includes(user.id),
-        ),
-      );
+      },
+      take: 10,
+      orderBy: { Posts: { _count: 'desc' } },
+    });
+  
+    // Filter out specific user IDs
+    const filteredUsers = users.filter(
+      (user) =>
+        ![
+          '657b12dfe1040ebf6d05e6d7',
+          req.user.id,
+          '657b14c8e1040ebf6d05e6d9',
+        ].includes(user.id),
+    );
+  
+    // Fetch all popular profiles
+    const popularProfiles = await this.pService.popularProfile.findMany({
+      where: {
+        status: 1,
+      },
+      select: {
+        userId: true,
+      },
+    });
+  
+    const popularProfileUserIds = new Set(popularProfiles.map((profile) => profile.userId));
+  
+    // Add the popular flag to each user
+    const usersWithPopularity = filteredUsers.map((user) => ({
+      ...user,
+      popular: popularProfileUserIds.has(user.id),
+    }));
+  
+    return usersWithPopularity;
   }
+  
 
   @Get('suggestions/pinned')
   async getPinnedUsers(@Req() req) {
-    return this.pService.user.findMany({
+    // Fetch the users by firebaseId
+    const users = await this.pService.user.findMany({
       where: {
         firebaseId: {
           in: ['5fteNgu0H6Smy8khVlHlLQLNhuF2', 'UJ2XlRbfOJdpccwoDHInbtCzoGs2'],
         },
       },
     });
+  
+    // Fetch all popular profiles
+    const popularProfiles = await this.pService.popularProfile.findMany({
+      where: {
+        status: 1,
+      },
+      select: {
+        userId: true,
+      },
+    });
+  
+    const popularProfileUserIds = new Set(popularProfiles.map((profile) => profile.userId));
+  
+    // Add the popular flag to each user
+    const usersWithPopularity = users.map((user) => ({
+      ...user,
+      popular: popularProfileUserIds.has(user.id),
+    }));
+  
+    return usersWithPopularity;
   }
+  
 
   @Get('followers/:username')
   async getFollowers(@Param('username') username: string, @Req() req) {

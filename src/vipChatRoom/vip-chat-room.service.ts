@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma.Service';
-import { CreateVipChatRoomDto, UpdateUnreadStatusDto } from './create-vip-chat-room.dto';
-
+import { CreateVipChatRoomDto, StartChatRoomDto, UpdateUnreadStatusDto } from './create-vip-chat-room.dto';
 
 @Injectable()
 export class VipChatRoomService {
@@ -38,13 +37,12 @@ export class VipChatRoomService {
                 userTwo,
                 status: 1,
                 unread: 1,
-             
             },
         });
     }
 
     return chatRoom;
-}
+  }
 
   async getChatRoomsByUserOne(userOne: string) {
     return this.prisma.vipChatRoom.findMany({
@@ -65,8 +63,6 @@ export class VipChatRoomService {
       data: { unread: 0 },
     });
   }
-
-
 
   async getRoomsDataByUserID(userId: string) {
     // Fetch chat rooms where the user is either userOne or userTwo
@@ -106,9 +102,6 @@ export class VipChatRoomService {
     return roomsWithUserData;
   }
 
-
-
-
   async getDataByRoomId(roomId: string) {
     // Fetch data for the chat room with the given ID
     const room = await this.prisma.vipChatRoom.findUnique({
@@ -137,10 +130,10 @@ export class VipChatRoomService {
       userTwo: userTwoData,
       unread: room.unread,
       status: room.status,
+      expiry:room.expiry,
       createdAt: room.createdAt,
     };
   }
-
 
   async endTheChat(payload: { fromId: string, toId: string, amount: number, duration: number, roomId: string }) {
     const { fromId, toId, amount, roomId } = payload;
@@ -168,7 +161,7 @@ export class VipChatRoomService {
     // Update chat room status to 0
     const updatedChatRoom = await this.prisma.vipChatRoom.update({
       where: { id: roomId },
-      data: { status: 0, unread:0 },
+      data: { status: 0, unread: 0 },
     });
 
     return {
@@ -178,5 +171,23 @@ export class VipChatRoomService {
     };
   }
 
-
+  async startChatRoom(startChatRoomDto: StartChatRoomDto) {
+    const { roomId, minutes } = startChatRoomDto;
+  
+    // Calculate expiration date
+    const expirationDate = new Date();
+    expirationDate.setTime(expirationDate.getTime() + minutes * 60000); // Add minutes in milliseconds
+  
+    // Update chat room status to active and set expiration date
+    const updatedChatRoom = await this.prisma.vipChatRoom.update({
+      where: { id: roomId },
+      data: {
+        status: 1,
+        expiry: expirationDate,
+      },
+    });
+  
+    return updatedChatRoom;
+  }
+  
 }
