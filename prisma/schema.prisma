@@ -16,6 +16,7 @@ generator client {
 enum Gender {
   MALE
   FEMALE
+  OTHER
 }
 
 
