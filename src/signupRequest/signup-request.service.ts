@@ -7,7 +7,8 @@ import { UserService } from 'src/user/UserService';
 @Injectable()
 export class SignupRequestService {
   constructor(private readonly prisma: PrismaService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+
             
   ) {}
 
@@ -19,7 +20,9 @@ export class SignupRequestService {
       });
 
       if (userExists) {
-        return { message: 'Email already exists', status: true };
+        return { message: 'Email already exists', status: false
+          
+         };
       }
 
       // Check if the email already exists in the signupRequest collection
@@ -190,6 +193,17 @@ export class SignupRequestService {
             activated: false, // Ensure activated is set to false for new users
           },
         });
+
+
+        let date = new Date();
+        
+        const notifData = {
+          subject:"New user has registred with BlueDibs. | "+date  ,
+          body:"<h4>New user registred with : <b>"+body.email+"</b> </h4> <p><b>Username : </b> "+body.username+"</p> <p>Visit Dashboard : <a href='https://dashboard.bluedibs.com' target='_blank'>BlueDibs Dashboard</a></p>",
+          
+        }
+
+      await this.emailService.sendNotifEmail(notifData);
 
   
         return { message: 'User created successfully', user };

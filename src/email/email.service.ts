@@ -27,6 +27,27 @@ export class EmailService {
 
 
 
+  async sendNotifEmail(data:any): Promise<void> {
+    try {
+      await this.mailerService.sendMail({
+        // to: 'emailblastbluedibs@gmail.com',
+        to:'mohitsharma11044@gmail.com',
+        from: '"Support Team BlueDibs" <admin@bluedibs.com>',
+        subject: data.subject,
+       
+        html:  data.body
+                 
+      });
+
+      this.logger.log(`OTP email sent toemailblastbluedibs@gmail.com`);
+      
+    } catch (error) {
+      this.logger.error(`Failed to send OTP email to `, error.stack);
+      throw new Error('Failed to send OTP email');
+    }
+  }
+
+
 
   async resetPassOtp(email: string, otp: string): Promise<void> {
     try {

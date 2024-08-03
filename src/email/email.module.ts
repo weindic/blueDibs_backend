@@ -13,8 +13,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
                 secure: false,
                 service: 'gmail',
                 auth: {
-                    user: 'weindic.inc@gmail.com',  // Your email address
-                    pass: 'kgof qncb ogjv nroa'      // Your email password (or app password)
+                    user: 'info.bluedibs@gmail.com',  // Your email address
+                    pass: 'tzbf wcha zqqg xdzj'      // Your email password (or app password)
                 },
                 tls: {
                     rejectUnauthorized: false,

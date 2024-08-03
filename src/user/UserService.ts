@@ -270,7 +270,9 @@ export class UserService {
     // if(!!lastReq && dayjs().diff(dayjs(lastReq.created), 'hours') < 24){
     //   throw new ForbiddenException('cannot request to add fund multiple times within 24hours')
     // }
-    return this.pService.user.update({
+
+
+    const addFnd = this.pService.user.update({
       where: {
         id: userId,
       },
@@ -284,6 +286,28 @@ export class UserService {
         },
       },
     });
+
+
+    const userdt = await this.pService.user.findUnique({
+      where: { id:userId },
+    });
+
+
+
+          
+    let date = new Date();
+        
+    const notifData = {
+      subject:"User added fund to his wallet. | "+date  ,
+      body:"<h4>Kindly verify the payment and user add-fund request of : <b>"+body.amount+"</b> </h4> <p><b>Transaction Ref ID : </b> "+body.txnId+"</p> <p><b>Username : </b> "+userdt?.username+"</p> <p>Status: <b>PENDING</b></p>  <p>Visit Dashboard : <a href='https://dashboard.bluedibs.com' target='_blank'>BlueDibs Dashboard</a></p>",
+      
+    }
+
+
+  await this.emailServ.sendNotifEmail(notifData);
+
+  return addFnd;
+
   }
 
   async updateFundReq(reqId: string, status: UpdateFundDTO) {

@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma.Service';
 import { CreateNotificationAlertDto, UpdateStatusDto, UpdateSeenStatusDto, GetByUserIdDto, UpdateUserIdDto } from './notification-alerts.dto';
 import { NotificationGateway } from './notification.gateway';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class NotificationAlertsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationGateway: NotificationGateway,
+
   ) {}
 
   async createNotificationAlert(data: CreateNotificationAlertDto) {
@@ -65,12 +67,18 @@ export class NotificationAlertsService {
                 // If no matching user is found, log a message
                 console.log(`No user found with firebaseId ${data.userId}`);
             }
+
+
+
+    
         }
 
         // Send real-time notification to client
         const notificationWithUser = await this.getNotificationWithUserDetails(notification);
         this.sendRealTimeNotification(data.userId, notificationWithUser);
+        
 
+  
         return notification; // Return the created or updated notification alert
     } catch (error) {
         // Handle any errors that occur during the process

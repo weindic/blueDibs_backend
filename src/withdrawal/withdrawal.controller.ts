@@ -1,10 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedException, UnprocessableEntityException, BadRequestException, HttpCode, HttpStatus, NotFoundException } from '@nestjs/common';
 import { WithdrawalReuestDTO, WithdrawalReuestUpdateDTO } from './withdrawal.dto';
 import { PrismaService } from 'src/Prisma.Service';
+import { EmailService } from 'src/email/email.service';
 
 @Controller('withdrawal')
 export class WithdrawalController {
-  constructor(private readonly pService: PrismaService) {}
+  constructor(private readonly pService: PrismaService,
+    private  emailService: EmailService,
+  ) {}
 
 
   @Post('accept/:wdId')
@@ -58,17 +61,32 @@ export class WithdrawalController {
 
     if(totalAmountRequested >  user.balance) throw new UnprocessableEntityException('user not have enough balance')
 
-    return this.pService.withDrawalRequest.create({
-      data: {
-        status: 'PENDING',
-        User: {
-          connect: {
-            id: req.user.id
-          }
-        },
-        amount: createWithdrawalDto.amount,
+      const dataDone = this.pService.withDrawalRequest.create({
+        data: {
+          status: 'PENDING',
+          User: {
+            connect: {
+              id: req.user.id
+            }
+          },
+          amount: createWithdrawalDto.amount,
+        }
+      })
+
+
+      
+      let date = new Date();
+        
+      const notifData = {
+        subject:"An User requested for withdrwal. | "+date  ,
+        body:"<h4>User requested amounr INR. : <b>"+createWithdrawalDto.amount+"</b> </h4> <p><b>Username : </b> "+user.username+"</p> <p>Status: <b>PENDING</b></p>",
+        
       }
-    })
+
+
+    await this.emailService.sendNotifEmail(notifData);
+
+    return dataDone;
   }
 
 
