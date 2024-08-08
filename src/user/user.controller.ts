@@ -51,6 +51,7 @@ export class UserController {
     private readonly pService: PrismaService,
     private readonly holdingService: HoldingService,
     private readonly userService: UserService,
+    private readonly emailService:EmailService
   ) {}
 
   // Other existing methods...
@@ -378,6 +379,10 @@ export class UserController {
       },
     });
   }
+
+
+
+
 
   @Post('unfollow/:id')
   unfollowUser(@Param('id') id, @Req() req) {
@@ -789,4 +794,38 @@ export class UserController {
       posts: await this.pService.post.count({ where: { userId: user.id } }),
     };
   }
+
+
+
+
+  
+  @Post('deleteAccountRequest')
+  async deleteAccountRequest(@Req() req) {
+    // Find the user by ID
+    const user = await this.pService.user.findUnique({
+      where: {
+        id: req.user.id, // Assuming req.user.id contains the user's ID
+      },
+    });
+  
+    if (user) {
+      let date = new Date();
+  
+      const notifData = {
+        subject: `Account Deletion Request | ${user.username} | ` + date,
+        body: `<h4>Delete Request From  : <b>${user.email}</b> </h4>
+               <p><b>User ID: </b> ${user.id}</p>
+               <p><b>Username : </b> ${user.username}</p>
+               <p><b>Delete Reason:</b> ${req.body.reason}</p>
+               <p>Visit Dashboard : <a href='https://dashboard.bluedibs.com' target='_blank'>BlueDibs Dashboard</a></p>`,
+      };
+  
+      await this.emailService.sendNotifEmail(notifData);
+  
+      return { status: true, message: "We have received your delete request." };
+    }
+  
+    return { status: false, message: "User not found." };
+  }
+  
 }
