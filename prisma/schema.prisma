@@ -33,6 +33,16 @@ model VipChatRequest {
 }
 
 
+model deleteAccount {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId       String   
+    reason       String 
+    status       Int
+    createdAt    DateTime @default(now())
+
+}
+
+
 model SignupRequest {
 
  id            String   @id @default(auto()) @map("_id") @db.ObjectId
