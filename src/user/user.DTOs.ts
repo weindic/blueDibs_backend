@@ -20,6 +20,7 @@ const updateUserSchema = addUserSchema
     mobile: z.string().optional(),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
     dob: z.string().optional(), // Use string since you'll convert it in the service
+    username:z.string(),
   })
   .strict();
 

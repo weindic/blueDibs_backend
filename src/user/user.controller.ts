@@ -81,6 +81,7 @@ export class UserController {
 
 
 
+    console.log(body.username)
 
     // Extract user data from request body
     const firebaseId = body.id;
@@ -113,7 +114,11 @@ export class UserController {
       gender: body.gender,
       bio: body.bio,
       avatarPath: body.avatar,
+      username:body.username
     };
+
+
+    console.log('updatedUserData', updatedUserData)
     
     // Handle avatar file upload if provided
 
@@ -828,4 +833,36 @@ export class UserController {
     return { status: false, message: "User not found." };
   }
   
+
+
+
+  @Post('validateUserName')
+  async validateUserName(@Req() req) {
+    // Check if a username and email are provided in the request body
+    if (!req.body.username || !req.body.email) {
+      return { status: false, message: "Username and email are required." };
+    }
+  
+    // Search for a user with the given username
+    const user = await this.pService.user.findUnique({
+      where: {
+        username: req.body.username,
+      },
+    });
+  
+    // If a user with the same username exists
+    if (user) {
+      // Check if the email belongs to the same user
+      if (user.email === req.body.email) {
+        return { status: true, message: "Username is available." };
+      } else {
+        return { status: false, message: "Username already exists." };
+      }
+    }
+  
+    // If no user with the username exists, it's available
+    return { status: true, message: "Username is available." };
+  }
+  
+
 }

@@ -383,6 +383,7 @@ async updateUserProfile(userId: string, body: UpdateUserDTO): Promise<any> {
       gender: body.gender,
       bio: body.bio,
       avatarPath: body.avatar === false ? dummyAvatarPath : body.avatarPath,
+      username:body.username
   };
 
 
